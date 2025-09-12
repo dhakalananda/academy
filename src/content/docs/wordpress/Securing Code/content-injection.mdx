@@ -1,0 +1,41 @@
+---
+title: Content Injection
+head:
+    - tag: title
+      content: Protect against Content Injection
+contributors:
+    - rafiem
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+
+## Introduction
+
+This article covers ways to secure the code from Content Injection vulnerability. This includes validating and sanitizing all user-supplied input before displaying it, and escaping dynamic output using WordPress functions.
+
+<LinkCard
+  title="Learn more about Content Injection"
+  href="/academy/wordpress/vulnerabilities/content-injection/"
+/>
+
+## How to secure
+
+It is always recommended to never trust user-input and always sanitize it before rendering any content on the front-end.
+
+```php
+add_action('wp_ajax_load_shortcode_content', 'my_ajax_load_shortcode');
+add_action('wp_ajax_nopriv_load_shortcode_content', 'my_ajax_load_shortcode');
+
+function my_ajax_load_shortcode() {
+    $id = intval($_POST['id']);
+
+    $shortcode_output = do_shortcode('[my_custom_shortcode id="' . $id . '"]');
+
+    echo $shortcode_output;
+
+    wp_die();
+}
+```
+
+In the above code, the use of `intval()` function ensures that the user-input is strictly integer only, which prevents the risk of content injection.
