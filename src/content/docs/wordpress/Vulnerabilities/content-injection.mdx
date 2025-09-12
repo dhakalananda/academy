@@ -47,3 +47,27 @@ To exploit this, any unauthenticated user just needs to perform a POST request t
 ```bash
 curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=load_shortcode_content -d 'id=1"][arbitrary_shortcode=1]'
 ```
+
+## HTML Injection
+
+HTML injection occurs due to improper handling of user-supplied data inside plugins/themes or admin settings which allows untrusted HTML to be stored or reflected into pages.
+
+Usage of functions like `wp_kses_post()` prevent XSS vulnerabilities by removing dangerous tags, but allow a list of safe tags to be injected. While this is an intended behavior for high-privileged users in admin panel, allowing unauthenticated users to set arbitrary HTML content can be dangerous.
+
+Below is an example of vulnerable code:
+```php
+add_action('wp_ajax_render_html', render_html);
+add_action('wp_ajax_nopriv_render_html', render_html);
+
+function render_html()
+{
+    echo "<p>". wp_kses_post($_REQUEST['test']). "</p>";
+    die();
+}
+```
+
+To exploit this, any unauthenticated user just needs to perform a POST request to the `/wp-admin/admin-ajax.php` endpoint specifying the needed parameter to trigger the `render_html` function.
+
+```bash
+curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=render_html&test=<h1>malicious</h1>
+```
