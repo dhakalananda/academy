@@ -5,6 +5,7 @@ head:
       content: Protect against Content Injection
 contributors:
     - dhakalananda
+    - rafiem
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
@@ -40,7 +41,7 @@ function my_ajax_load_shortcode() {
 
 In the above code, the use of `intval()` function ensures that the user-input is strictly integer only, which prevents the risk of content injection.
 
-For HTML injections, they can be fixed in a similar way XSS are fixed.
+For HTML injections, they can be fixed similarly to how XSS vulnerabilities are addressed.
 
 <LinkCard
   title="Learn how to secure your code against XSS"

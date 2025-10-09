@@ -352,7 +352,7 @@ Below are some of the findings related to this vulnerable setting:
 
 ## Insecure Set Role
 
-WordPress provides the WP_User::set_role() method to change a user’s role. It’s a legitimate way for an administrator to move a user from one role to another (for example, from “author” to “editor”).
+WordPress provides the `WP_User::set_role()` method to change a user’s role. It’s a legitimate way for an administrator to move a user from one role to another (for example, from “author” to “editor”).
 
 If a plugin exposes this functionality via an AJAX or REST endpoint without strict permission checks, an attacker could abuse it to elevate their privileges.
 

@@ -50,9 +50,9 @@ curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=load_shortcode_content 
 
 ## HTML Injection
 
-HTML injection occurs due to improper handling of user-supplied data inside plugins/themes or admin settings which allows untrusted HTML to be stored or reflected into pages.
+HTML injection occurs due to improper handling of user-supplied data inside plugins/themes or admin settings, which allows untrusted HTML to be stored or reflected into pages.
 
-Usage of functions like `wp_kses_post()` prevent XSS vulnerabilities by removing dangerous tags, but allow a list of safe tags to be injected. While this is an intended behavior for high-privileged users in admin panel, allowing unauthenticated users to set arbitrary HTML content can be dangerous.
+Usage of functions like `wp_kses_post()` prevents XSS vulnerabilities by removing dangerous tags, but allows a list of safe tags to be injected. While this is an intended behavior for high-privileged users in the admin panel, allowing unauthenticated users to set arbitrary HTML content can be dangerous.
 
 Below is an example of vulnerable code:
 ```php
