@@ -68,7 +68,15 @@ export default defineConfig({
         directory: 'wordpress',
         collapsed: true
       }
-    }, {
+    },{
+      label: '🆕 Drupal',
+      collapsed: true,
+      autogenerate: {
+        directory: 'drupal',
+        collapsed: true
+      }
+    },
+    {
       label: '📝 To Do',
       collapsed: true,
       autogenerate: {

@@ -1,0 +1,35 @@
+---
+title: Setting up Drupal for Hacking
+sidebar:
+  order: 3
+contributors:
+    - dhakalananda
+---
+import { Steps } from '@astrojs/starlight/components';
+
+## Introduction
+
+Now that we know Drupal and its ecosystem, it is finally time to set up Drupal locally and dive into it. In this section, we will be discussing various ways of setting up a Drupal instance.
+
+Since the local setup is widely covered on the internet, a Google search can provide a ton of articles. We will not be re-inventing the wheel from scratch here either. Instead, we will reference some articles that provide a detailed guideline for setting up.
+
+### Apache/MySQL method
+
+The first method of setting up Drupal is through the traditional LAMP, WAMP, or XAMPP stack. A locally running Apache and MySQL server is required to set this up.
+
+**Note:** Druapl does not recommend using this setup for local dev/testing purpose. Instead, they recommend using Docker setup.
+
+References:
+
+- [Drupal XAMPP Windows Setup](https://www.drupal.org/docs/develop/local-server-setup/windows-development-environment/using-xampp/quick-install-drupal-with-xampp-on-windows)
+
+### Docker Setup
+
+An official Drupal docker image can be used to set up everything. Due to the simplicity of the setup and cross-platform compatibility, it's the preferred way to install Drupal.
+
+[Drupal Docker Guide](https://www.drupal.org/docs/develop/local-server-setup/docker-based-development-environments-for-macos-linux-and-windows)
+
+References:
+
+- [Docker4Drual](https://github.com/wodby/docker4drupal)
+- [DDEV](https://docs.ddev.com/en/stable/users/quickstart/#drupal)
