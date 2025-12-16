@@ -1,15 +1,14 @@
 ---
 title: Broken Access Control
 head:
-    - tag: title
-      content: Learn about Broken Access Control
+  - tag: title
+    content: Learn about Broken Access Control
 contributors:
-    - rafiem
-    - dhakalananda
+  - rafiem
+  - dhakalananda
 ---
 
-import { LinkCard } from '@astrojs/starlight/components';
-
+import { LinkCard } from "@astrojs/starlight/components";
 
 ## Introduction
 
@@ -93,7 +92,7 @@ To exploit this, any authenticated user (**Subscriber+** role) needs to perform 
 
 ```bash
 curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=update_post_data&update=1 -d "id=1&data=changed"
-``` 
+```
 
 ## [`wp_ajax_nopriv_{$action}`](https://developer.wordpress.org/reference/hooks/wp_ajax_nopriv_action/) hook
 
@@ -118,7 +117,7 @@ To exploit this, any unauthenticated user needs to perform a POST request to the
 
 ```bash
 curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=toggle_menu_bar -d "toggle=1"
-``` 
+```
 
 ## `register_rest_route` function
 
@@ -145,7 +144,7 @@ To exploit this, any unauthenticated user needs to perform a POST request to the
 
 ```bash
 curl <WORDPRESS_BASE_URL>/wp-json/myplugin/v1/delete/author -d "user_id=1"
-``` 
+```
 
 Other cases could exist where developers already specify a proper function on the `permission_callback` parameter; however, the permission check implemented inside the function itself is not proper for what process can be done from the REST API route `callback` function.
 
@@ -185,4 +184,47 @@ To exploit this, an unauthenticated user can grab the nonce from the WP site hom
 
 ```bash
 curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=delete_user -d "nonce=nonce_from_page_source&user_id=1"
-``` 
+```
+
+## Nonce leakage #2
+
+Another case for nonce leakage to broken access control occurs if the plugin is assigning the nonce based on the current screen. In such case, it is possible to tamper the current screen as an authenticated user to grab the nonce.
+
+```php
+// Enqueue admin script only on specific screens
+// Expose nonce based on current screen
+add_action( 'admin_enqueue_scripts', function () {
+	if ( ! function_exists( 'get_current_screen' ) ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+	if ( ! $screen || $screen->id !== 'my_plugin_page_settings' ) {
+		return;
+	}
+
+	echo "Nonce here:";
+	echo wp_create_nonce( 'my_plugin_nonce' );
+} );
+
+// Privileged AJAX action
+add_action( 'wp_ajax_update_settings', function () {
+	check_ajax_referer( 'my_plugin_nonce', 'nonce' );
+
+	update_option( 'tamper_options', true );
+
+	wp_send_json_success();
+} );
+```
+
+In this case, it is possible to request below to get access to the nonce:
+
+```bash
+GET /wp-admin/index.php/%0a/wp-admin/my_plugin_page_settings HTTP/1.1
+```
+
+After getting access to the nonce, an attacker can just send an authenticated request with the nonce:
+
+```bash
+curl <WORDPRESS_BASE_URL>/wp-admin/admin-ajax.php?action=update_settings -d "nonce=nonce_from_above"
+```
